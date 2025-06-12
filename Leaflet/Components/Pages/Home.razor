@@ -1,0 +1,59 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Leaflet Map with Clusters</PageTitle>
+
+
+<div id="map"></div>
+
+@code {
+    private List<LocationModel> locations = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Static locations
+        locations = new List<LocationModel>
+        {
+            new LocationModel(37.7749, -122.4194), // SF
+            new LocationModel(34.0522, -118.2437), // LA
+            new LocationModel(36.1699, -115.1398), // Vegas
+            new LocationModel(40.7128, -74.0060),  // NY
+            new LocationModel(41.8781, -87.6298),  // Chicago
+            new LocationModel(47.6062, -122.3321), // Seattle
+            new LocationModel(25.7617, -80.1918),  // Miami
+            new LocationModel(29.7604, -95.3698),  // Houston
+            new LocationModel(33.4484, -112.0740), // Phoenix
+            new LocationModel(39.7392, -104.9903)  // Denver
+        };
+
+        // Add 100 random markers
+        var random = new Random();
+        for (int i = 0; i < 100; i++)
+        {
+            var lat = 24 + random.NextDouble() * 25;   // Latitude between 24-49
+            var lng = -125 + random.NextDouble() * 58; // Longitude between -125 to -67
+            locations.Add(new LocationModel(lat, lng));
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeLeafletMap");
+            await JSRuntime.InvokeVoidAsync("addMarkersToMap", locations);
+        }
+    }
+
+    public class LocationModel
+    {
+        public double Lat { get; set; }
+        public double Lng { get; set; }
+
+        public LocationModel(double lat, double lng)
+        {
+            Lat = lat;
+            Lng = lng;
+        }
+    }
+}
